@@ -1,0 +1,23 @@
+#!/bin/bash
+set -e
+set -x
+
+# https://www.terraform.io/docs/registry/providers/publishing.html
+
+VERSION="3.29.6"
+
+export GOARCH="amd64"
+
+# clean up old zip files
+rm -f *.zip
+
+GOOS=darwin go build -o terraform-provider-aws_v${VERSION}
+zip terraform-provider-aws_v${VERSION}_darwin_amd64.zip terraform-provider-aws_v${VERSION}
+rm -f terraform-provider-aws_v${VERSION}
+
+GOOS=linux go build -o terraform-provider-aws_v${VERSION}
+zip terraform-provider-aws_v${VERSION}_linux_amd64.zip terraform-provider-aws_v${VERSION}
+rm -f terraform-provider-aws_v${VERSION}
+
+shasum -a 256 *.zip > terraform-provider-aws_${VERSION}_SHA256SUMS
+gpg --detach-sign terraform-provider-aws_${VERSION}_SHA256SUMS
